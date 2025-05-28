@@ -11,3 +11,4 @@ torchaudio
 torchvision
 transformers
 ultralytics
+plotly
