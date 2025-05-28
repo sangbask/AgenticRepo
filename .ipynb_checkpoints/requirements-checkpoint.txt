@@ -1,0 +1,14 @@
+streamlit
+pandas
+numpy
+scikit-learn
+matplotlib
+opencv-python
+opencv-python-headless
+easyocr
+torch
+torchaudio
+torchvision
+transformers
+ultralytics
+plotly

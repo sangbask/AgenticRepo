@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+# Set seed
 np.random.seed(42)
 
 # Create 100 sample loan records
@@ -15,8 +16,26 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Save to CSV in your desired directory
-csv_path = '/Users/sangeetha/PythonProjects/GoAgentic/FraudDetectionAgent/mock_loan_data.csv'
+# Simulate ~15% fraudulent cases
+fraud_ratio = 0.15
+num_fraud = int(fraud_ratio * num_samples)
+fraud_indices = np.random.choice(df.index, size=num_fraud, replace=False)
+
+# Update loan_id to mark as fraudulent
+df.loc[fraud_indices, 'loan_id'] = df.loc[fraud_indices, 'loan_id'].apply(lambda x: x[:-1] + '5')
+
+# --- ADDING VARIANCE TO FRAUDULENT CASES ---
+# Add noise to credit_score
+df.loc[fraud_indices, 'credit_score'] = np.random.randint(300, 850, size=num_fraud)
+# Add noise to loan_amount and collateral_value to ensure ltv_ratio variance
+df.loc[fraud_indices, 'loan_amount'] += np.random.randint(-10000, 10000, size=num_fraud)
+df.loc[fraud_indices, 'collateral_value'] += np.random.randint(-10000, 10000, size=num_fraud)
+
+# Ensure no zero or negative collateral values
+df['collateral_value'] = df['collateral_value'].clip(10000, 600000)
+
+# Save to CSV
+csv_path = '/Users/sangeetha/PythonProjects/GoAgentic/FraudDetectionAgent/mock_loan_data_fraud_variance_final.csv'
 df.to_csv(csv_path, index=False)
 
-print(f"✅ Mock dataset created: {csv_path}")
+print(f"✅ Final mock dataset with strong variance created: {csv_path}")
