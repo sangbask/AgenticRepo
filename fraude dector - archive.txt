@@ -1,0 +1,93 @@
+import streamlit as st
+import pandas as pd
+from sklearn.ensemble import IsolationForest
+import plotly.express as px
+
+# --- Page config ---
+st.set_page_config(page_title="Loan Collateral Fraud Detection", layout="wide")
+
+# --- Title & instructions ---
+st.title("💼 Loan Collateral Fraud Detection Dashboard")
+st.markdown("""
+This AI-powered agent automatically analyzes loan booking data to detect potentially fraudulent transactions, ensuring regulatory compliance and minimizing risk exposure.
+
+Upload your **CSV file** below to begin.
+""")
+
+# --- File uploader ---
+uploaded_file = st.file_uploader("📂 Upload your CSV file", type="csv")
+
+if uploaded_file is not None:
+    # --- Load data ---
+    df = pd.read_csv(uploaded_file)
+
+    # --- Clean data & feature engineering ---
+    df['loan_amount'] = pd.to_numeric(df['loan_amount'], errors='coerce')
+    df['collateral_value'] = pd.to_numeric(df['collateral_value'], errors='coerce')
+    df['credit_score'] = pd.to_numeric(df['credit_score'], errors='coerce')
+    df = df[df['collateral_value'] > 0]
+    df['ltv_ratio'] = df['loan_amount'] / df['collateral_value']
+    df.fillna(0, inplace=True)
+
+    # --- Fraud detection model ---
+    model = IsolationForest(contamination=0.1, random_state=42)
+    model.fit(df[['loan_amount', 'collateral_value', 'credit_score', 'ltv_ratio']])
+    df['fraud_risk'] = model.predict(df[['loan_amount', 'collateral_value', 'credit_score', 'ltv_ratio']])
+    df['fraud_risk_label'] = df['fraud_risk'].apply(lambda x: "Fraudulent" if x == -1 else "Normal")
+
+    # --- Metrics ---
+    total_records = len(df)
+    total_fraud = (df['fraud_risk_label'] == "Fraudulent").sum()
+    fraud_rate = (total_fraud / total_records) * 100
+
+    # --- Display summary metrics ---
+    st.markdown("### Key Metrics")
+    metric_cols = st.columns(3)
+    metric_cols[0].metric("🔢 Total Records", total_records)
+    metric_cols[1].metric("🚨 Fraudulent Records", total_fraud)
+    metric_cols[2].metric("📊 Fraud Rate (%)", f"{fraud_rate:.2f}")
+
+    st.markdown("---")
+
+    # --- Layout: Pie chart and data tables side by side ---
+    col1, col2 = st.columns([1, 1.5])
+
+    # --- Pie chart in left column ---
+    fraud_count = df['fraud_risk_label'].value_counts().reset_index()
+    fraud_count.columns = ['Risk Label', 'Count']
+
+    fig = px.pie(
+        fraud_count,
+        values='Count',
+        names='Risk Label',
+        title="Fraud Risk Distribution",
+        color='Risk Label',
+        color_discrete_map={"Fraudulent": "red", "Normal": "green"}
+    )
+    fig.update_traces(textinfo='percent+label', pull=[0.1, 0])
+    col1.plotly_chart(fig, use_container_width=True)
+
+    # --- Data tables in right column ---
+    col2.markdown("#### 🚨 Flagged Fraudulent Transactions")
+    fraudulent_df = df[df['fraud_risk_label'] == "Fraudulent"]
+    col2.dataframe(fraudulent_df, use_container_width=True, height=300)
+
+    col2.markdown("#### 📋 Full Dataset with Fraud Risk Labels")
+    col2.dataframe(df, use_container_width=True, height=400)
+
+    # --- Download button below ---
+    st.markdown("---")
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button("⬇️ Download Results CSV", data=csv,
+                       file_name="fraud_detection_results.csv",
+                       mime="text/csv")
+else:
+    st.warning("Please upload a CSV file to start fraud detection.")
+
+# --- Footer ---
+st.markdown("""
+---
+✅ **AI-powered Fraud Detection**  
+✅ **Built for lending & collateral risk analysis**  
+✅ **Client-ready, visually balanced dashboard**  
+""")
