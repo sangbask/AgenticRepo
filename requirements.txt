@@ -1,14 +1,21 @@
+# Core app dependencies
 streamlit
 pandas
 numpy
 scikit-learn
-matplotlib
+plotly
+yfinance
+python-dotenv
+
+# GenAI / GPT-4o support
+openai
+
+# Computer vision & OCR (optional, present in your list)
 opencv-python
 opencv-python-headless
 easyocr
 torch
-torchaudio
 torchvision
+torchaudio
 transformers
 ultralytics
-plotly
