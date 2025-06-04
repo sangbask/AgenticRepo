@@ -277,13 +277,20 @@ if uploaded_file is not None:
         fig_bubble.update_layout(height=400)
         st.plotly_chart(fig_bubble, use_container_width=True)
     
-        # --- Styled table for combined risk scores ---
-        st.markdown("### 🗂️ Combined Risk Details Table")
-        styled_combined_df = df[['loan_amount', 'credit_score', 'collateral_type',
-                                 'fraud_risk_score', 'credit_risk_score', 'collateral_risk_score', 'combined_risk_score']]
-        st.dataframe(styled_combined_df.style.background_gradient(cmap='Oranges'), height=400)
+        # Compact, professional table view
+        st.markdown("### 🗂️ Detailed Risk Breakdown")
+        table_data = df[['loan_amount', 'credit_score', 'collateral_type', 
+                         'fraud_risk_score', 'credit_risk_score', 'collateral_risk_score', 'combined_risk_score']]
+        st.dataframe(table_data.style.background_gradient(cmap='Oranges').format({
+            'loan_amount': '₹{:,.0f}',
+            'credit_score': '{:,.0f}',
+            'fraud_risk_score': '{:.2f}',
+            'credit_risk_score': '{:.2f}',
+            'collateral_risk_score': '{:.2f}',
+            'combined_risk_score': '{:.2f}'
+        }), height=400)
     
-        st.info("This bubble chart and detailed table provide a holistic view of the combined risk exposure across all key dimensions.")
+        st.info("This polished view showcases key risk metrics alongside the bubble chart for an engaging client pitch.")
 
 # --- Real-time transaction prediction ---
     if st.sidebar.button("🔎 Check Real-Time Transaction"):

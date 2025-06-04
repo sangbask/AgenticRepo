@@ -6,7 +6,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import yfinance as yf
-import numpy as np
 
 # --- Load environment variables ---
 load_dotenv()
@@ -51,44 +50,16 @@ st.markdown("""
 
 # --- Sidebar: Dynamic threshold slider ---
 st.sidebar.header("🔧 Adjust Detection Parameters")
-threshold_input = st.sidebar.slider(
-    "Dynamic Fraud Threshold (%)",
-    min_value=1, max_value=50, value=10, step=1,
-    help="ℹ️ Sets how sensitive the fraud detection is. Higher thresholds flag more transactions."
-) / 100.0
+threshold_input = st.sidebar.slider("Dynamic Fraud Threshold (%)", min_value=1, max_value=50, value=10, step=1) / 100.0
 
 # --- Sidebar: Real-time transaction check inputs ---
 st.sidebar.header("🔍 Real-Time Transaction Check")
-
-loan_amount_input = st.sidebar.number_input(
-    "Loan Amount", min_value=0.0, value=100000.0, step=1000.0,
-    help="ℹ️ Amount of the loan being analyzed."
-)
-
-collateral_value_input = st.sidebar.number_input(
-    "Collateral Value", min_value=1.0, value=120000.0, step=1000.0,
-    help="ℹ️ Value of the asset pledged for the loan."
-)
-
-credit_score_input = st.sidebar.slider(
-    "Credit Score", min_value=300, max_value=850, value=650,
-    help="ℹ️ Numeric measure of the borrower's creditworthiness."
-)
-
-credit_history_input = st.sidebar.number_input(
-    "Credit History (years)", min_value=0, max_value=30, value=5,
-    help="ℹ️ Number of years the borrower has credit history."
-)
-
-collateral_type_input = st.sidebar.selectbox(
-    "Collateral Type", ["Bonds", "Equities", "Cash"],
-    help="ℹ️ Type of asset used as collateral (Bonds, Equities, Cash)."
-)
-
-aml_score_input = st.sidebar.slider(
-    "AML Risk Score", min_value=0, max_value=100, value=50,
-    help="ℹ️ Anti-Money Laundering risk score based on checks."
-)
+loan_amount_input = st.sidebar.number_input("Loan Amount", min_value=0.0, value=100000.0, step=1000.0)
+collateral_value_input = st.sidebar.number_input("Collateral Value", min_value=1.0, value=120000.0, step=1000.0)
+credit_score_input = st.sidebar.slider("Credit Score", min_value=300, max_value=850, value=650)
+credit_history_input = st.sidebar.number_input("Credit History (years)", min_value=0, max_value=30, value=5)
+collateral_type_input = st.sidebar.selectbox("Collateral Type", ["Bonds", "Equities", "Cash"])
+aml_score_input = st.sidebar.slider("AML Risk Score", min_value=0, max_value=100, value=50)
 
 # --- Real-time market adjustment for Equities ---
 if collateral_type_input == "Equities":
@@ -117,11 +88,7 @@ collateral_type_map = {"Bonds": 1, "Equities": 2, "Cash": 3}
 collateral_type_num = collateral_type_map.get(collateral_type_input, 0)
 
 # --- File uploader ---
-uploaded_file = st.file_uploader(
-    "📂 Upload your CSV file",
-    type="csv",
-    help="ℹ️ Upload a CSV file with loan transaction data for analysis."
-)
+uploaded_file = st.file_uploader("📂 Upload your CSV file", type="csv")
 
 model = None
 
@@ -149,9 +116,9 @@ if uploaded_file is not None:
     fraud_rate = (total_fraud / total_records) * 100
 
     metric_cols = st.columns(3)
-    metric_cols[0].metric("Total Records", total_records, help="ℹ️ Number of loan transactions analyzed.")
-    metric_cols[1].metric("Potential Fraudulent Cases", total_fraud, help="ℹ️ Number of transactions flagged as potentially fraudulent.")
-    metric_cols[2].metric("Fraud Rate (%)", f"{fraud_rate:.2f}", help="ℹ️ Percentage of transactions flagged as fraudulent.")
+    metric_cols[0].metric("Total Records", total_records)
+    metric_cols[1].metric("Potential Fraudulent Cases", total_fraud)
+    metric_cols[2].metric("Fraud Rate (%)", f"{fraud_rate:.2f}")
 
     if total_fraud > 0:
         fraud_df = df[df['fraud_risk_label'] == "Fraudulent"]
@@ -163,9 +130,6 @@ if uploaded_file is not None:
 
     st.markdown("---")
     charts_col1, charts_col2 = st.columns(2)
-
-    charts_col1.markdown("📊 **Fraud Risk Distribution**")
-    charts_col1.markdown("_ℹ️ Pie chart showing the proportion of fraudulent vs normal transactions._")
     fraud_count = df['fraud_risk_label'].value_counts().reset_index()
     fraud_count.columns = ['Risk Label', 'Count']
     pie_chart = px.pie(fraud_count, values='Count', names='Risk Label', title="Fraud Risk Distribution",
@@ -173,16 +137,58 @@ if uploaded_file is not None:
     pie_chart.update_traces(textinfo='percent+label', pull=[0.1, 0])
     charts_col1.plotly_chart(pie_chart, use_container_width=True)
 
+    # --- Updated Feature Variance for All Features ---
     if total_fraud > 0:
-        charts_col2.markdown("📈 **Log-Scaled Feature Variance**")
-        charts_col2.markdown("_ℹ️ Highlights features with the highest variability in fraudulent transactions._")
-        feature_variance = fraud_df[['loan_amount', 'collateral_value', 'credit_score', 'ltv_ratio', 'credit_history', 'collateral_type_num', 'aml_score']].var()
-        feature_variance_log = np.log1p(feature_variance).reset_index()
-        feature_variance_log.columns = ['Feature', 'Log Variance']
-        log_chart = px.bar(feature_variance_log, x='Feature', y='Log Variance', color='Log Variance',
-                           title="Log-Scaled Feature Variance", color_continuous_scale="reds")
-        charts_col2.plotly_chart(log_chart, use_container_width=True)
+        feature_variance = fraud_df[['loan_amount', 'collateral_value', 'credit_score', 'ltv_ratio', 'credit_history', 'collateral_type_num', 'aml_score']].var().reset_index()
+        feature_variance.columns = ['Feature', 'Variance']
+        bar_chart = px.bar(feature_variance, x='Feature', y='Variance', color='Variance',
+                           title="Feature Variance in Potential Fraud Cases", color_continuous_scale="reds")
+        charts_col2.plotly_chart(bar_chart, use_container_width=True)
     else:
         charts_col2.info("No fraudulent transactions detected to show feature variance.")
 
-# The rest of your file remains unchanged
+    st.markdown("---")
+    tables_col1, tables_col2 = st.columns([1, 1.5])
+    tables_col1.markdown("<h4 style='font-size: 1rem;'>🔍 Potential Fraudulent Cases</h4>", unsafe_allow_html=True)
+    fraudulent_df = df[df['fraud_risk_label'] == "Fraudulent"]
+    tables_col1.dataframe(fraudulent_df, use_container_width=True, height=400)
+
+    tables_col2.markdown("<h4 style='font-size: 1rem;'>📋 Complete Loan Transaction Records</h4>", unsafe_allow_html=True)
+    tables_col2.dataframe(df, use_container_width=True, height=400)
+
+    st.markdown("<h4 style='font-size: 1rem;'>👥 Analyst Review and Feedback</h4>", unsafe_allow_html=True)
+    if not fraudulent_df.empty:
+        selected_indices = st.multiselect("Select transactions confirmed as fraud:", fraudulent_df.index)
+        if st.button("💾 Submit Feedback"):
+            feedback_df = df.loc[selected_indices]
+            feedback_df['confirmed_fraud'] = True
+            feedback_df.to_csv("human_feedback.csv", mode='a', header=False, index=False)
+            st.success("✅ Feedback saved for retraining.")
+    else:
+        st.info("No fraudulent transactions to review.")
+
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button("⬇️ Download Risk Analysis Report (CSV)", data=csv,
+                       file_name="agentic_fraud_detection_results.csv",
+                       mime="text/csv")
+else:
+    st.warning("Please upload a CSV file to start the analysis.")
+
+if st.sidebar.button("🔎 Check Real-Time Transaction"):
+    if model is not None:
+        single_data = pd.DataFrame({
+            'loan_amount': [loan_amount_input],
+            'collateral_value': [adjusted_collateral_value],
+            'credit_score': [credit_score_input],
+            'ltv_ratio': [ltv_ratio_input],
+            'credit_history': [credit_history_input],
+            'collateral_type_num': [collateral_type_num],
+            'aml_score': [aml_score_input]
+        })
+        fraud_prediction = model.predict(single_data)[0]
+        if fraud_prediction == -1:
+            st.sidebar.error("🚨 This transaction is flagged as **Fraudulent**.")
+        else:
+            st.sidebar.success("✅ This transaction appears **Normal**.")
+    else:
+        st.sidebar.warning("Please upload a CSV file first to initialize the model.")
