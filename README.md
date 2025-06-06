@@ -107,7 +107,16 @@ loan_amount,collateral_value,credit_score,credit_history,collateral_type,aml_sco
 ```
 There is a sampel loan portfolio csv file in teh repo for sample data upload.
 ---
+**Running Unit Tests**
+To run the test suite for all risk_modules, use the following command from the project root directory:
 
+bash
+Copy
+Edit
+PYTHONPATH=. pytest tests/
+ℹ️ This sets the current directory as the Python path, so the risk_modules/ package can be correctly imported inside the tests.
+
+then run test with command : pytest tests/ 
 ## 📞 Contact
 
 Maintainer: **@sangbask**  
