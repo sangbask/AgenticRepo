@@ -1,7 +1,0 @@
-[theme]
-base = "dark"
-primaryColor = "#1f77b4"            # Blue accent color
-backgroundColor = "#0e1117"         # Dark main background
-secondaryBackgroundColor = "#262730" # Dark secondary background (sidebar, etc.)
-textColor = "#fafafa"               # Light text for readability
-font = "sans serif"                 # Clean, modern font
