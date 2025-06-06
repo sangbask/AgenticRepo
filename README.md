@@ -105,7 +105,7 @@ Make sure your uploaded CSV file includes:
 loan_amount,collateral_value,credit_score,credit_history,collateral_type,aml_score
 100000,120000,700,6,Equities,45
 ```
-
+There is a sampel loan portfolio csv file in teh repo for sample data upload.
 ---
 
 ## 📞 Contact
