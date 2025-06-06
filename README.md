@@ -105,8 +105,9 @@ Make sure your uploaded CSV file includes:
 loan_amount,collateral_value,credit_score,credit_history,collateral_type,aml_score
 100000,120000,700,6,Equities,45
 ```
-There is a sampel loan portfolio csv file in teh repo for sample data upload.
----
+There is a sample  loan portfolio csv file in the  repo (sample_loan_portfolio.csv) for sample data upload.
+
+
 **Running Unit Tests**
 To run the test suite for all risk_modules, use the following command from the project root directory:
 
@@ -115,6 +116,17 @@ Copy
 Edit
 PYTHONPATH=. pytest tests/
 ℹ️ This sets the current directory as the Python path, so the risk_modules/ package can be correctly imported inside the tests.
+
+Smoke Test for Main Streamlit App
+---------------------------------
+
+This checks that the main dashboard (FraudDetectorAIAgents.py) launches without crashing:
+
+bash
+Copy
+Edit
+PYTHONPATH=. pytest tests/test_main_app.py
+⚠️ Note: This does not open the UI; it validates that Streamlit can start the app without errors
 
 then run test with command : pytest tests/ 
 ## 📞 Contact
