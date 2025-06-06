@@ -63,11 +63,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Sidebar: Dynamic threshold slider ---
-st.sidebar.header("🔧 Adjust Detection Parameters")
+st.sidebar.header(" Adjust Detection Parameters")
 threshold_input = st.sidebar.slider("Dynamic Fraud Threshold (%)", 1, 50, 10, step=1) / 100.0
 
 # --- Sidebar: Real-time transaction check inputs ---
-st.sidebar.header("🔍 Real-Time Transaction Check")
+st.sidebar.header(" Real-Time Transaction Check")
 loan_amount_input = st.sidebar.number_input("Loan Amount", 0.0, 1e9, 100000.0, step=1000.0)
 collateral_value_input = st.sidebar.number_input("Collateral Value", 1.0, 1e9, 120000.0, step=1000.0)
 credit_score_input = st.sidebar.slider("Credit Score", 300, 850, 650)
@@ -77,7 +77,7 @@ aml_score_input = st.sidebar.slider("AML Risk Score", 0, 100, 50)
 
 # Real-time market adjustment for Equities
 if collateral_type_input == "Equities":
-    st.sidebar.markdown("💹 **Fetching Real-Time Market Data for Equities...**")
+    st.sidebar.markdown(" **Fetching Real-Time Market Data for Equities...**")
     sp500 = yf.Ticker("^GSPC")
     sp500_data = sp500.history(period="2d")
     if not sp500_data.empty and len(sp500_data["Close"]) >= 2:
@@ -100,7 +100,7 @@ collateral_type_map = {"Bonds": 1, "Equities": 2, "Cash": 3}
 collateral_type_num = collateral_type_map.get(collateral_type_input, 0)
 
 # --- File uploader ---
-uploaded_file = st.file_uploader("📂 Upload your CSV file with Dummy Labels", type="csv")
+uploaded_file = st.file_uploader(" Upload your CSV file with Dummy Labels", type="csv")
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
@@ -170,7 +170,7 @@ if uploaded_file is not None:
                 st.markdown("### 👥 Analyst Feedback")
                 if not fraud_df.empty:
                     selected_indices = st.multiselect(f"Select transactions confirmed as fraud in {model}:", fraud_df.index, key=f"feedback_{model}")
-                    if st.button(f"💾 Submit Feedback for {model}"):
+                    if st.button(f"Submit Feedback for {model}"):
                         feedback_df = df.loc[selected_indices]
                         feedback_df['confirmed_fraud'] = True
                         feedback_df.to_csv("human_feedback.csv", mode='a', header=False, index=False)
@@ -240,7 +240,7 @@ if uploaded_file is not None:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("#### Collateral Risk Donut Chart")
+            st.markdown("#### Collateral Risk Distribution")
             st.plotly_chart(fig_donut, use_container_width=True)
         
         with col2:
@@ -263,7 +263,7 @@ if uploaded_file is not None:
         metric_cols[2].metric("Lowest Combined Risk", f"{min_combined_risk:.2f}")
     
         # --- Bubble (scatter) chart for combined risk scores ---
-        st.markdown("### 🎯 Combined Risk Bubble Chart")
+        st.markdown("### 🎯 Combined Risk Distribution")
         fig_bubble = px.scatter(
             df,
             x='credit_risk_score',
@@ -272,7 +272,7 @@ if uploaded_file is not None:
             color='combined_risk_score',
             hover_data=['loan_amount', 'credit_score', 'collateral_type'],
             color_continuous_scale='Viridis',
-            title="Combined Risk Bubble Chart: Credit vs Collateral Risk"
+            title="Combined Risk  Chart: Credit vs Collateral Risk"
         )
         fig_bubble.update_layout(height=400)
         st.plotly_chart(fig_bubble, use_container_width=True)

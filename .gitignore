@@ -30,8 +30,8 @@ env_backup/
 # MacOS
 .DS_Store
 
-# Data and models (optional: comment out if you want to keep these tracked)
-*.csv
+# Data and models (optional: comment out if you want to keep these tracked
+
 *.pkl
 *.h5
 *.joblib

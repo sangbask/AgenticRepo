@@ -20,3 +20,4 @@ torchaudio
 transformers
 ultralytics
 xgboost
+pytest>=8.0.0
