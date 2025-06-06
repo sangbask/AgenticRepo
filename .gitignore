@@ -1,0 +1,42 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+
+# Environment variables
+.env
+
+# Streamlit logs and cache
+.streamlit/
+*.log
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+env.bak/
+env_backup/
+
+# VSCode and IDEs
+.vscode/
+.idea/
+*.swp
+
+# MacOS
+.DS_Store
+
+# Data and models (optional: comment out if you want to keep these tracked)
+*.csv
+*.pkl
+*.h5
+*.joblib
+*.model
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
